@@ -4,6 +4,7 @@
 
 uint32_t colors[3]; //colors for easier writing of code
 bool once = false;
+int runningindex = 0;
 
 // Which pin on the Arduino is connected to the NeoPixels?
 #define PIN            1
@@ -30,13 +31,13 @@ void loop() {
   if(! once){
     once = true;
   
-  for(int i=0;i<11;i++){
+  for(int i=0;i<11;i++){ // 44 leds / 4 leds per group makes 11 rounds
 
-    for(int j=0; j<=NUMPIXELS-i*4-4; j++){
+    for(int j=0; j<=NUMPIXELS-i*4-4; j++){ // for each pixel upto the currently not permanent ones
        if(j > 0){
-        pixels.setPixelColor(j-1, colors[2]);
+        pixels.setPixelColor(j-1, colors[2]); //reset earlier pixel
        }
-       for(int k = 0; k < 4; k++){
+       for(int k = 0; k < 4; k++){ // the whole group needs love
         pixels.setPixelColor(j+k, colors[i%2]);
         pixels.show();
        }
@@ -48,5 +49,18 @@ void loop() {
     //pixels.show(); // This sends the updated pixel color to the hardware.
     //delay(delayval); // Delay for a period of time (in milliseconds).
   }
+  }else{
+    int colorcounter = 0;
+    bool chosencolor = 0;
+    for(int i=0; i < NUMPIXELS; i++){
+      if(colorcounter > 4){
+        chosencolor = !chosencolor;
+        colorcounter = 0;
+      }
+      pixels.setPixelColor(runningindex+i % NUMPIXELS, colors[chosencolor]);
+      pixels.show();
+      delay(50);
+  }
+  runningindex = runningindex+1 % NUMPIXELS;
   }
 }
